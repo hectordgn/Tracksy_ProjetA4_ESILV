@@ -55,13 +55,15 @@ app.post('/api/register', async (req, res) => {
 
         const msg = {
             to: email, 
-            from: process.env.SENDER_EMAIL, // Doit être l'adresse validée sur SendGrid
+    
+             // 👇 C'EST ICI LA CORRECTION 👇
+            from: { email: process.env.SENDER_EMAIL }, // Objet contenant l'email
+    
             subject: 'Validation de votre compte',
             html: `<p>Bonjour ${username},</p>
-                   <p>Merci de cliquer sur ce lien pour valider votre compte :</p>
-                   <a href="${link}">Valider mon compte</a>`,
+                <p>Merci de cliquer sur ce lien pour valider votre compte :</p>
+                <a href="${link}">Valider mon compte</a>`,
         };
-
         // Utilisation de l'API SendGrid
         try {
             await sgMail.send(msg);
