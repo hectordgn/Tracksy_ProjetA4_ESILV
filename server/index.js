@@ -62,7 +62,8 @@ app.post('/api/register', async (req, res) => {
 
         const msg = {
             to: email, 
-            from: { email: process.env.SENDER_EMAIL }, // Objet contenant l'email (Correction du problème précédent)
+            // CORRECTION FINALE : Format simple String pour SendGrid
+            from: process.env.SENDER_EMAIL, 
             subject: 'Validation de votre compte',
             html: `<p>Bonjour ${username},</p>
                    <p>Merci de cliquer sur ce lien pour valider votre compte :</p>
