@@ -13,7 +13,6 @@ const UserModel = require('./User'); // Votre modèle utilisateur
 const app = express();
 
 // --- Middlewares Express CRUCIAUX ---
-// Doivent être placés AVANT toutes les définitions de routes
 app.use(cors());
 app.use(express.json()); // Permet de lire req.body pour les données JSON
 
@@ -26,12 +25,11 @@ mongoose.connect(MONGO_URI)
     .catch(err => console.error("❌ Erreur de connexion MongoDB:", err));
 
 // --- CONFIGURATION DE SENDGRID ---
-// La clé API est lue depuis les variables d'environnement de Render
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // --- ROUTE INSCRIPTION (/api/register) ---
 app.post('/api/register', async (req, res) => {
-    // VÉRIFICATION DE SÉCURITÉ : Assure que le corps de la requête n'est pas vide
+    // VÉRIFICATION DE SÉCURITÉ
     if (!req.body) return res.status(400).json({ success: false, message: "Requête mal formée (données manquantes)." });
     
     try {
@@ -57,13 +55,15 @@ app.post('/api/register', async (req, res) => {
         });
 
         // 5. Envoyer le lien par mail
-        // NOTE: Si le site Vercel est déjà en ligne, remplacez http://localhost:5173 par son URL (ex: https://mon-site.vercel.app)
         const link = `http://localhost:5173/?token=${token}`; 
 
         const msg = {
             to: email, 
-            // CORRECTION FINALE : Format simple String pour SendGrid
-            from: process.env.SENDER_EMAIL, 
+            // CORRECTION DÉFINITIVE : Format objet avec EMAIL et NAME
+            from: { 
+                email: process.env.SENDER_EMAIL,
+                name: 'Validation Compte' 
+            }, 
             subject: 'Validation de votre compte',
             html: `<p>Bonjour ${username},</p>
                    <p>Merci de cliquer sur ce lien pour valider votre compte :</p>
@@ -128,5 +128,5 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Écoute du serveur (Render utilisera sa propre variable PORT)
+// Écoute du serveur
 app.listen(5000, () => { console.log("🚀 Serveur lancé sur 5000"); });
