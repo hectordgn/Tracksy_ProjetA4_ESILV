@@ -11,8 +11,12 @@ const sgMail = require('@sendgrid/mail'); // Librairie SendGrid
 const UserModel = require('./User'); // Votre modèle utilisateur
 
 const app = express();
+
+// --- Middlewares Express CRUCIAUX ---
+// Doivent être placés AVANT toutes les définitions de routes
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Permet de lire req.body pour les données JSON
+
 
 // --- CONFIGURATION DE LA BDD ---
 const MONGO_URI = process.env.MONGO_URI;
@@ -25,8 +29,11 @@ mongoose.connect(MONGO_URI)
 // La clé API est lue depuis les variables d'environnement de Render
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// --- ROUTE INSCRIPTION ---
+// --- ROUTE INSCRIPTION (/api/register) ---
 app.post('/api/register', async (req, res) => {
+    // VÉRIFICATION DE SÉCURITÉ : Assure que le corps de la requête n'est pas vide
+    if (!req.body) return res.status(400).json({ success: false, message: "Requête mal formée (données manquantes)." });
+    
     try {
         const { username, email, password } = req.body;
         
@@ -50,29 +57,23 @@ app.post('/api/register', async (req, res) => {
         });
 
         // 5. Envoyer le lien par mail
-        // Assurez-vous que Vercel est utilisé ici si vous voulez le lien en production
+        // NOTE: Si le site Vercel est déjà en ligne, remplacez http://localhost:5173 par son URL (ex: https://mon-site.vercel.app)
         const link = `http://localhost:5173/?token=${token}`; 
 
         const msg = {
             to: email, 
-    
-             // 👇 C'EST ICI LA CORRECTION 👇
-            from: { email: process.env.SENDER_EMAIL }, // Objet contenant l'email
-    
+            from: { email: process.env.SENDER_EMAIL }, // Objet contenant l'email (Correction du problème précédent)
             subject: 'Validation de votre compte',
             html: `<p>Bonjour ${username},</p>
-                <p>Merci de cliquer sur ce lien pour valider votre compte :</p>
-                <a href="${link}">Valider mon compte</a>`,
+                   <p>Merci de cliquer sur ce lien pour valider votre compte :</p>
+                   <a href="${link}">Valider mon compte</a>`,
         };
-        // Utilisation de l'API SendGrid
+
         try {
             await sgMail.send(msg);
             console.log("Message envoyé via SendGrid avec succès !");
         } catch (error) {
-            // Log l'erreur détaillée pour le débogage Render
-            console.error("❌ Erreur SendGrid détaillée :", error.response.body); 
-            // On continue le processus d'inscription même si l'email échoue pour le moment, 
-            // car l'échec est souvent dû à la configuration API et non à la base de données.
+            console.error("❌ Erreur SendGrid détaillée :", error.response ? error.response.body : error); 
         }
 
         res.json({ success: true, message: "Inscription réussie ! Veuillez vérifier votre email." });
@@ -83,8 +84,11 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// --- ROUTE VERIFICATION EMAIL ---
+// --- ROUTE VERIFICATION EMAIL (/api/verify) ---
 app.post('/api/verify', async (req, res) => {
+    // VÉRIFICATION DE SÉCURITÉ
+    if (!req.body) return res.status(400).json({ success: false, message: "Requête mal formée (Token manquant)." });
+    
     const { token } = req.body;
     
     const user = await UserModel.findOne({ verificationToken: token });
@@ -100,8 +104,11 @@ app.post('/api/verify', async (req, res) => {
     res.json({ success: true, message: "Compte vérifié avec succès !" });
 });
 
-// --- ROUTE LOGIN ---
+// --- ROUTE LOGIN (/api/login) ---
 app.post('/api/login', async (req, res) => {
+    // VÉRIFICATION DE SÉCURITÉ
+    if (!req.body) return res.status(400).json({ success: false, message: "Requête mal formée (Données de connexion manquantes)." });
+    
     const { username, password } = req.body;
     const user = await UserModel.findOne({ username });
 
@@ -120,4 +127,5 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// Écoute du serveur (Render utilisera sa propre variable PORT)
 app.listen(5000, () => { console.log("🚀 Serveur lancé sur 5000"); });
