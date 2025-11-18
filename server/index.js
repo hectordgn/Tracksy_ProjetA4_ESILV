@@ -27,34 +27,21 @@ const transporter = nodemailer.createTransport({
 });
 
 // --- ROUTE INSCRIPTION ---
+// Trouvez ce bloc dans votre fichier server/index.js, autour de la ligne 60
+// C'est la route d'inscription
 app.post('/api/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        
-        // 1. Vérifier si l'email existe déjà
-        const existingUser = await UserModel.findOne({ email });
-        if (existingUser) return res.status(400).json({ success: false, message: "Email déjà utilisé" });
-
-        // 2. Hachage du mot de passe
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // 3. Générer un token unique
+        // ... (Code existant pour vérification et hachage) ...
         const token = crypto.randomBytes(32).toString('hex');
-
-        // 4. Créer l'utilisateur (Non vérifié par défaut)
-        const user = await UserModel.create({ 
-            username, 
-            email, 
-            password: hashedPassword,
-            verificationToken: token,
-            isVerified: false
-        });
+        
+        // ... (Création de l'utilisateur) ...
 
         // 5. Envoyer le lien par mail
-        // Le lien pointera vers votre Frontend avec le token en paramètre
         const link = `http://localhost:5173/?token=${token}`;
 
-        await transporter.sendMail({
+        // Assurez-vous d'avoir ce 'const info =' pour capturer l'ID du message
+        const info = await transporter.sendMail({ 
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Validation de votre compte',
@@ -63,10 +50,15 @@ app.post('/api/register', async (req, res) => {
                    <a href="${link}">Valider mon compte</a>`
         });
 
+        // 🚨 C'EST LA NOUVELLE LIGNE À AJOUTER 🚨
+        console.log("Message envoyé, ID de transaction : %s", info.messageId); 
+
         res.json({ success: true, message: "Inscription réussie ! Vérifiez vos emails." });
 
     } catch (err) {
-        console.error(err);
+        // ... (Votre gestion des erreurs existante) ...
+        // Le log 'err' est aussi important ici !
+        console.error("Erreur d'envoi de mail :", err); 
         res.status(500).json({ success: false, message: "Erreur lors de l'inscription" });
     }
 });
