@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
+// Définition de l'URL de l'API (soit celle de Render, soit localhost)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 function App() {
   // États
   const [username, setUsername] = useState('');
@@ -25,7 +28,8 @@ function App() {
 
   const verifyAccount = async (token) => {
     try {
-      const res = await fetch('http://localhost:5000/api/verify', {
+      // Utilisation de API_URL
+      const res = await fetch(`${API_URL}/api/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
@@ -55,7 +59,8 @@ function App() {
       : { username, password };
 
     try {
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      // Utilisation de API_URL + endpoint
+      const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -81,43 +86,63 @@ function App() {
   };
 
   return (
-    <div className="app-container" style={{ padding: '50px', textAlign: 'center' }}>
+    <div className="app-container">
       {user ? (
-        <div>
+        <div className="login-card">
           <h1>🎉 Bienvenue, {user.name} !</h1>
-          <button onClick={handleLogout}>Se déconnecter</button>
+          <button onClick={handleLogout} className="logout-btn">Se déconnecter</button>
         </div>
       ) : (
-        <div className="login-card" style={{maxWidth: '350px', margin: '0 auto'}}>
+        <div className="login-card">
           <h2>{isRegistering ? "Inscription" : "Connexion"}</h2>
           
-          {successMsg && <div style={{color: 'green', marginBottom: '10px', fontWeight: 'bold'}}>{successMsg}</div>}
+          {successMsg && <div className="success-msg">{successMsg}</div>}
           
           <form onSubmit={handleSubmit}>
-            <div style={{marginBottom: '10px'}}>
-                <input type="text" placeholder="Pseudo" value={username} onChange={e => setUsername(e.target.value)} required style={{width: '100%', padding:'8px'}}/>
+            <div className="input-group">
+                <input 
+                  type="text" 
+                  placeholder="Pseudo" 
+                  value={username} 
+                  onChange={e => setUsername(e.target.value)} 
+                  required 
+                />
             </div>
 
             {/* Champ Email visible uniquement lors de l'inscription */}
             {isRegistering && (
-                <div style={{marginBottom: '10px'}}>
-                    <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required style={{width: '100%', padding:'8px'}}/>
+                <div className="input-group">
+                    <input 
+                      type="email" 
+                      placeholder="Email" 
+                      value={email} 
+                      onChange={e => setEmail(e.target.value)} 
+                      required 
+                    />
                 </div>
             )}
 
-            <div style={{marginBottom: '10px'}}>
-                <input type="password" placeholder="Mot de passe" value={password} onChange={e => setPassword(e.target.value)} required style={{width: '100%', padding:'8px'}}/>
+            <div className="input-group">
+                <input 
+                  type="password" 
+                  placeholder="Mot de passe" 
+                  value={password} 
+                  onChange={e => setPassword(e.target.value)} 
+                  required 
+                />
             </div>
 
-            {error && <p style={{color: 'red'}}>{error}</p>}
+            {error && <div className="error-msg">{error}</div>}
 
-            <button type="submit" style={{width: '100%', padding:'10px', cursor:'pointer'}}>
+            <button type="submit" className="submit-btn">
               {isRegistering ? "S'inscrire" : "Se connecter"}
             </button>
           </form>
-          <p onClick={() => setIsRegistering(!isRegistering)} style={{cursor: 'pointer', color: 'blue', marginTop: '15px'}}>
-            {isRegistering ? "J'ai déjà un compte" : "Créer un compte"}
-          </p>
+          <div className="toggle-container">
+            <span onClick={() => setIsRegistering(!isRegistering)} className="toggle-btn">
+              {isRegistering ? "J'ai déjà un compte ? Me connecter" : "Pas encore de compte ? Créer un compte"}
+            </span>
+          </div>
         </div>
       )}
     </div>
