@@ -1,0 +1,15 @@
+# Dépendances (trop lourdes)
+node_modules/
+*/node_modules/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Sécurité (très important)
+.env
+server/.env
+
+# Build de production
+dist/
+build/
