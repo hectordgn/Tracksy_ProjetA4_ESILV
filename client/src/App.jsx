@@ -1,50 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import './App.css'
 
-// Définition de l'URL de l'API (soit celle de Render, soit localhost)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function App() {
-  // États
+  // States
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
 
-  // --- EFFET POUR DETECTER LE CLICK DEPUIS LE MAIL ---
-  useEffect(() => {
-    // On regarde si l'URL contient "?token=..."
-    const queryParams = new URLSearchParams(window.location.search);
-    const token = queryParams.get('token');
-
-    if (token) {
-      // Si oui, on appelle le serveur pour valider
-      verifyAccount(token);
-    }
-  }, []);
-
-  const verifyAccount = async (token) => {
-    try {
-      // Utilisation de API_URL
-      const res = await fetch(`${API_URL}/api/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSuccessMsg("Compte validé ! Vous pouvez vous connecter.");
-        // On nettoie l'URL pour faire joli
-        window.history.replaceState({}, document.title, "/");
-      } else {
-        setError(data.message);
-      }
-    } catch (err) { setError("Erreur de validation"); }
-  };
-  // ----------------------------------------------------
+  // NOTE: Removed useEffect for token verification
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,13 +21,10 @@ function App() {
 
     const endpoint = isRegistering ? '/api/register' : '/api/login';
     
-    // On inclut l'email seulement si on s'inscrit
-    const payload = isRegistering 
-      ? { username, email, password } 
-      : { username, password };
+    // Payload now only contains username and password
+    const payload = { username, password };
 
     try {
-      // Utilisation de API_URL + endpoint
       const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -70,8 +35,8 @@ function App() {
 
       if (data.success) {
         if (isRegistering) {
-          setSuccessMsg(data.message); // "Vérifiez vos emails"
-          setIsRegistering(false);
+          setSuccessMsg(data.message); 
+          setIsRegistering(false); // Switch to login view immediately
         } else {
           setUser(data.user);
         }
@@ -82,7 +47,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    setUser(null); setUsername(''); setPassword(''); setEmail('');
+    setUser(null); setUsername(''); setPassword('');
   };
 
   return (
@@ -109,18 +74,7 @@ function App() {
                 />
             </div>
 
-            {/* Champ Email visible uniquement lors de l'inscription */}
-            {isRegistering && (
-                <div className="input-group">
-                    <input 
-                      type="email" 
-                      placeholder="Email" 
-                      value={email} 
-                      onChange={e => setEmail(e.target.value)} 
-                      required 
-                    />
-                </div>
-            )}
+            {/* Email input group removed */}
 
             <div className="input-group">
                 <input 
