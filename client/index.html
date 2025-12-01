@@ -1,13 +1,109 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en-UK">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
+    <title>Tracksy | The Letterboxd of Music</title>
+    <link rel="stylesheet" href="frontPageDisplay.css" />
+    <link rel="icon" type="image/x-icon" href="favicon.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
   </head>
+
+ <!-- LOGIN OVERLAY -->
+<div id="login-overlay"></div>
+
+<!-- LOGIN MODAL -->
+<div id="login-modal">
+  <div class="modal-content">
+    <span class="close-login">&times;</span>
+    <h2>Connexion</h2>
+
+    <form class="login-form">
+      <label>Email</label>
+      <input type="email" placeholder="Entrez votre email" required />
+
+      <label>Mot de passe</label>
+      <input type="password" placeholder="Votre mot de passe" required />
+
+      <button type="submit">Se connecter</button>
+    </form>
+  </div>
+</div>
+
+
+<script src="loginModal.js"></script>
+
+
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <!-- NAVIGATION BAR -->
+    <header class="navbar">
+      <div class="logo">🎧 Tracksy</div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#">Découvrir</a></li>
+          <li><a href="#">Communauté</a></li>
+          <li><a href="#">Mon profil</a></li>
+        </ul>
+      </nav>
+      <div class="auth-buttons">
+        <button class="login-btn">Connexion</button>
+        <button class="signup-btn">S’inscrire</button>
+      </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Suivez, notez et partagez votre musique préférée</h1>
+        <p>
+          Découvrez de nouveaux sons, créez votre journal musical et échangez
+          avec des passionnés comme vous.
+        </p>
+        <button class="cta">Commencer</button>
+      </div>
+      <div class="hero-image">
+        <img src="hero_album_mockup.png" alt="Albums display" />
+      </div>
+    </section>
+
+    <!-- FEATURE SECTION -->
+    <section class="features">
+      <div class="feature">
+        <span class="material-symbols-outlined">library_music</span>
+        <h3>Découvrez</h3>
+        <p>
+          Explorez une base de données musicale complète, des classiques aux
+          pépites cachées.
+        </p>
+      </div>
+      <div class="feature">
+        <span class="material-symbols-outlined">star</span>
+        <h3>Notez</h3>
+        <p>
+          Évaluez les albums, laissez des avis et créez votre collection
+          personnelle.
+        </p>
+      </div>
+      <div class="feature">
+        <span class="material-symbols-outlined">people</span>
+        <h3>Partagez</h3>
+        <p>
+          Suivez vos amis, découvrez leurs écoutes et échangez vos coups de
+          cœur.
+        </p>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>© 2025 Tracksy — Made with ❤️ for music lovers</p>
+    </footer>
   </body>
 </html>
