@@ -108,11 +108,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function addToDB(item) {
     try {
-      const res = await fetch("http://localhost:3000/api/music/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item),
-      });
+      const token = localStorage.getItem("tracksy_token");
+
+const res = await fetch("http://localhost:3000/api/music/add", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: "Bearer " + token,
+  },
+  body: JSON.stringify(item),
+});
 
       console.log("addToDB status =", res.status);
 
