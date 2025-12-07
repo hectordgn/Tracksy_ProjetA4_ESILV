@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Recherche Spotify | Tracksy</title>
+
+    <!-- Réutilise le même CSS global -->
+    <link rel="stylesheet" href="frontPageDisplay.css" />
+
+    <!-- (optionnel) CSS spécifique recherche -->
+    <link rel="stylesheet" href="search.css" />
+  </head>
+
+  <body>
+    <!-- NAVBAR cohérente avec l’index -->
+    <header class="navbar">
+      <div class="logo">🎧 Tracksy</div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="#">Découvrir</a></li>
+          <li><a href="#">Communauté</a></li>
+          <li><a href="#">Mon profil</a></li>
+          <li><a href="search.html">Recherche</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <section class="search-section">
+      <h1>Rechercher un artiste, album ou titre</h1>
+
+      <div class="search-bar">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Daft Punk, The Weeknd…"
+        />
+        <button id="searchBtn">Rechercher</button>
+      </div>
+
+      <div id="results"></div>
+    </section>
+
+    <script src="search.js"></script>
+  </body>
+</html>
