@@ -10,6 +10,22 @@
   border-bottom: 1px solid #333;
 }
 
+.track-cover {
+  border-radius: 4px;
+}
+
+.track-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.track-sub {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+
 .track-title {
   flex: 1;
 }

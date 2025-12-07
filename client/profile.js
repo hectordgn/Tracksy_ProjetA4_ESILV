@@ -49,32 +49,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     list.innerHTML = "";
-    tracks.forEach((t) => {
-      const card = document.createElement("div");
-      card.classList.add("profile-track");
+   tracks.forEach((t) => {
+  const card = document.createElement("div");
+  card.classList.add("profile-track");
 
-      // Coeur déjà rouge
-      const heart = document.createElement("button");
-      heart.className = "heart-btn liked";
-      heart.textContent = "♥";
-      heart.title = "Retirer des likes";
-      heart.addEventListener("click", () => handleUnlike(t.trackId, card));
+  if (t.image) {
+    const img = document.createElement("img");
+    img.src = t.image;
+    img.height = 60;
+    img.className = "track-cover";
+    card.appendChild(img);
+  }
 
-      // Titre
-      const title = document.createElement("span");
-      title.className = "track-title";
-      title.textContent = t.name || "Morceau sans titre";
+  const heart = document.createElement("button");
+  heart.className = "heart-btn liked";
+  heart.textContent = "♥";
+  heart.title = "Retirer des likes";
+  heart.addEventListener("click", () => handleUnlike(t.trackId, card));
 
-      // Étoiles
-      const stars = document.createElement("div");
-      stars.className = "stars";
-      renderStars(stars, t.trackId, t.rating || 0);
+  const info = document.createElement("div");
+  info.className = "track-info";
 
-      card.appendChild(heart);
-      card.appendChild(title);
-      card.appendChild(stars);
-      list.appendChild(card);
-    });
+  const title = document.createElement("div");
+  title.className = "track-title";
+  title.textContent = t.name || "Morceau sans titre";
+
+  const subtitle = document.createElement("div");
+  subtitle.className = "track-sub";
+  subtitle.textContent =
+    (t.artistName || "") + (t.albumName ? " — " + t.albumName : "");
+
+  info.appendChild(title);
+  info.appendChild(subtitle);
+
+  const stars = document.createElement("div");
+stars.className = "stars";
+renderStars(stars, t.trackId, t.rating || 0);
+card.appendChild(stars);
+
+  card.appendChild(heart);
+  card.appendChild(info);
+  list.appendChild(card);
+});
+
+
+
   } catch (e) {
     console.error("Erreur my-tracks front:", e);
     list.textContent = "Erreur réseau en récupérant les morceaux.";
@@ -111,7 +130,7 @@ async function handleUnlike(trackId, card) {
 function renderStars(container, trackId, initialRating) {
   container.innerHTML = "";
   const token = localStorage.getItem("tracksy_token");
-  let currentRating = initialRating; // ex. 2.5
+  let currentRating = initialRating;
 
   for (let i = 1; i <= 5; i++) {
     const span = document.createElement("span");
@@ -125,13 +144,12 @@ function renderStars(container, trackId, initialRating) {
       }
 
       let newRating;
-      // logique simple : cliquer sur même "index" alterne entier / demi
       if (currentRating === i) {
-        newRating = i - 0.5; // ex: 3 -> 2.5
+        newRating = i - 0.5;
       } else if (currentRating === i - 0.5) {
-        newRating = i; // ex: 2.5 -> 3
+        newRating = i; 
       } else {
-        newRating = i; // sinon on met plein
+        newRating = i;
       }
 
       try {
@@ -151,7 +169,6 @@ function renderStars(container, trackId, initialRating) {
           return;
         }
         currentRating = newRating;
-        // re-rendu complet pour mettre à jour toutes les classes
         renderStars(container, trackId, currentRating);
       } catch {
         alert("Erreur réseau");
@@ -161,6 +178,18 @@ function renderStars(container, trackId, initialRating) {
     container.appendChild(span);
   }
 }
+
+function updateStarSpan(span, index, rating) {
+  span.classList.remove("full", "half", "empty");
+  if (rating >= index) {
+    span.classList.add("full");
+  } else if (rating >= index - 0.5) {
+    span.classList.add("half");
+  } else {
+    span.classList.add("empty");
+  }
+}
+
 
 function updateStarSpan(span, index, rating) {
   span.classList.remove("full", "half", "empty");

@@ -4,9 +4,6 @@ const router = express.Router();
 
 async function getAccessToken() {
   try {
-    console.log("CLIENT_ID =", process.env.CLIENT_ID);
-    console.log("CLIENT_SECRET défini ?", !!process.env.CLIENT_SECRET);
-
     const res = await axios.post(
       "https://accounts.spotify.com/api/token",
       "grant_type=client_credentials",
@@ -21,8 +18,6 @@ async function getAccessToken() {
         },
       }
     );
-
-    console.log("Token reçu OK");
     return res.data.access_token;
   } catch (e) {
     console.error(
@@ -67,12 +62,16 @@ router.get("/search", async (req, res) => {
 
     res.json(results);
   } catch (e) {
-  console.error("Erreur Spotify brute:", e.response?.status, e.response?.data || e.message);
-  return res.status(500).json({
-    error: "Spotify error",
-    status: e.response?.status,
-    details: e.response?.data || e.message,
-  });
+    console.error(
+      "Erreur Spotify brute:",
+      e.response?.status,
+      e.response?.data || e.message
+    );
+    return res.status(500).json({
+      error: "Spotify error",
+      status: e.response?.status,
+      details: e.response?.data || e.message,
+    });
   }
 });
 

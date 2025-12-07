@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("searchBtn");
   const input = document.getElementById("searchInput");
   const resultsDiv = document.getElementById("results");
+  
 
   if (!btn || !input || !resultsDiv) {
     console.error("Éléments manquants dans le DOM");
