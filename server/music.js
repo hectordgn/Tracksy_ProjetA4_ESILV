@@ -8,33 +8,50 @@ const router = express.Router();
 router.post("/add", async (req, res) => {
   const item = req.body;
 
-  if (item.type === "artist") {
-    await Artist.create({
-      spotifyId: item.id,
-      name: item.name,
-      image: item.image
-    });
-  }
+  try {
+    if (item.type === "artist") {
+      await Artist.findOneAndUpdate(
+        { spotifyId: item.id },
+        {
+          spotifyId: item.id,
+          name: item.name,
+          image: item.image,
+        },
+        { upsert: true, new: true }
+      );
+    }
 
-  if (item.type === "album") {
-    await Album.create({
-      spotifyId: item.id,
-      name: item.name,
-      image: item.image,
-      artistId: item.extra.artists[0].id
-    });
-  }
+    if (item.type === "album") {
+      await Album.findOneAndUpdate(
+        { spotifyId: item.id },
+        {
+          spotifyId: item.id,
+          name: item.name,
+          image: item.image,
+          artistId: item.extra.artists[0].id,
+        },
+        { upsert: true, new: true }
+      );
+    }
 
-  if (item.type === "track") {
-    await Track.create({
-      spotifyId: item.id,
-      name: item.name,
-      albumId: item.extra.album.id,
-      artistId: item.extra.artists[0].id
-    });
-  }
+    if (item.type === "track") {
+      await Track.findOneAndUpdate(
+        { spotifyId: item.id },
+        {
+          spotifyId: item.id,
+          name: item.name,
+          albumId: item.extra.album.id,
+          artistId: item.extra.artists[0].id,
+        },
+        { upsert: true, new: true }
+      );
+    }
 
-  res.json({ status: "ok" });
+    res.json({ status: "ok" });
+  } catch (e) {
+    console.error("Erreur /api/music/add:", e);
+    res.status(500).json({ error: "DB error" });
+  }
 });
 
 module.exports = router;
