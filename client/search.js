@@ -3,10 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btn = document.getElementById("searchBtn");
   const input = document.getElementById("searchInput");
-  const resultsDiv = document.getElementById("results");
-  
+  const resultsRoot = document.getElementById("results");
 
-  if (!btn || !input || !resultsDiv) {
+  if (!btn || !input || !resultsRoot) {
     console.error("Éléments manquants dans le DOM");
     return;
   }
@@ -23,7 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    resultsDiv.textContent = "Recherche en cours...";
+    // message global mais on NE TOUCHE PAS à la structure interne
+    resultsRoot.querySelectorAll(".results-list").forEach((col) => {
+      col.innerHTML = "<p>Recherche en cours...</p>";
+    });
 
     try {
       const url = `http://localhost:3000/api/spotify/search?q=${encodeURIComponent(
@@ -38,7 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("corps brut reçu =", raw);
 
       if (!res.ok) {
-        resultsDiv.textContent = "Erreur backend : " + res.status;
+        resultsRoot.querySelectorAll(".results-list").forEach((col) => {
+          col.textContent = "Erreur backend : " + res.status;
+        });
         return;
       }
 
@@ -47,23 +51,41 @@ document.addEventListener("DOMContentLoaded", () => {
         data = JSON.parse(raw);
       } catch (e) {
         console.error("JSON invalide :", e);
-        resultsDiv.textContent = "Réponse invalide du serveur.";
+        resultsRoot.querySelectorAll(".results-list").forEach((col) => {
+          col.textContent = "Réponse invalide du serveur.";
+        });
         return;
       }
 
       displayResults(data);
     } catch (err) {
       console.error("Erreur fetch :", err);
-      resultsDiv.textContent = "Erreur réseau lors de la recherche.";
+      resultsRoot.querySelectorAll(".results-list").forEach((col) => {
+        col.textContent = "Erreur réseau lors de la recherche.";
+      });
     }
   }
 
   function displayResults(results) {
     console.log("displayResults avec", results);
-    resultsDiv.innerHTML = "";
+
+    const tracksCol = document.querySelector("#results-tracks .results-list");
+    const albumsCol = document.querySelector("#results-albums .results-list");
+    const artistsCol = document.querySelector("#results-artists .results-list");
+
+    if (!tracksCol || !albumsCol || !artistsCol) {
+      console.error("Colonnes manquantes", { tracksCol, albumsCol, artistsCol });
+      return;
+    }
+
+    tracksCol.innerHTML = "";
+    albumsCol.innerHTML = "";
+    artistsCol.innerHTML = "";
 
     if (!Array.isArray(results) || results.length === 0) {
-      resultsDiv.textContent = "Aucun résultat.";
+      tracksCol.innerHTML = "<p>Aucun morceau.</p>";
+      albumsCol.innerHTML = "<p>Aucun album.</p>";
+      artistsCol.innerHTML = "<p>Aucun artiste.</p>";
       return;
     }
 
@@ -75,18 +97,15 @@ document.addEventListener("DOMContentLoaded", () => {
       let subtitle = "";
 
       if (item.type === "track") {
-        imageUrl =
-          imageUrl || item.extra?.album?.images?.[0]?.url || "";
+        imageUrl = imageUrl || item.extra?.album?.images?.[0]?.url || "";
         const artistName = item.extra?.artists?.[0]?.name || "";
         const albumName = item.extra?.album?.name || "";
         subtitle = `${artistName} — ${albumName}`;
       } else if (item.type === "album") {
-        imageUrl =
-          imageUrl || item.extra?.images?.[0]?.url || "";
+        imageUrl = imageUrl || item.extra?.images?.[0]?.url || "";
         subtitle = item.extra?.artists?.[0]?.name || "";
       } else if (item.type === "artist") {
-        imageUrl =
-          imageUrl || item.extra?.images?.[0]?.url || "";
+        imageUrl = imageUrl || item.extra?.images?.[0]?.url || "";
         subtitle = "Artiste";
       }
 
@@ -103,7 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
       div.querySelector(".add-btn").addEventListener("click", () =>
         addToDB(item)
       );
-      resultsDiv.appendChild(div);
+
+      if (item.type === "track") tracksCol.appendChild(div);
+      else if (item.type === "album") albumsCol.appendChild(div);
+      else if (item.type === "artist") artistsCol.appendChild(div);
     });
   }
 
@@ -111,14 +133,14 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const token = localStorage.getItem("tracksy_token");
 
-const res = await fetch("http://localhost:3000/api/music/add", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: "Bearer " + token,
-  },
-  body: JSON.stringify(item),
-});
+      const res = await fetch("http://localhost:3000/api/music/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify(item),
+      });
 
       console.log("addToDB status =", res.status);
 

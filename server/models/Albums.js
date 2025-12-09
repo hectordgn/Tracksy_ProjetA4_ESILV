@@ -5,6 +5,7 @@ const AlbumSchema = new mongoose.Schema({
   name: String,
   image: String,
   artistId: String,
+  artistName: String, 
 });
 
 module.exports = mongoose.model("Album", AlbumSchema);
