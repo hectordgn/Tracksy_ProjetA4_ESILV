@@ -77,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("tracksy_token", data.token);
         alert("Connecté en tant que " + data.pseudo);
         closeLoginModal();
+        window.location.href = "index.html";
 
       } catch (err) {
         console.error("Erreur login:", err);
